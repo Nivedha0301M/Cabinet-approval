@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+
+{q:"The Cabinet Committee on Economic Affairs (CCEA) approved two mega hydroelectric projects in Arunachal Pradesh with a combined investment of ₹40,175.33 crore to strengthen renewable energy capacity and promote sustainable development in the North-Eastern region. Which of the following correctly matches the project and its installed capacity?", options:["Kalai-II HEP – 1,720 MW; Kamala HEP – 1,200 MW","Kalai-II HEP – 1,200 MW; Kamala HEP – 1,720 MW","Kalai-II HEP – 1,500 MW; Kamala HEP – 1,600 MW","Kalai-II HEP – 1,320 MW; Kamala HEP – 1,800 MW"], answer:1},
+
+{q:"The 1,200 MW Kalai-II Hydro Electric Project approved by the Cabinet Committee on Economic Affairs (CCEA) will be developed in which district of Arunachal Pradesh?", options:["Kurung Kumey","Kamle","Anjaw","Kra Daadi"], answer:2},
+
+{q:"The 1,720 MW Kamala Hydro Electric Project (HEP) approved by the Union Government spans across which combination of districts?", options:["Anjaw, Lohit and Namsai","Kamle, Kra Daadi and Kurung Kumey","Lower Dibang Valley, Siang and Kamle","Tawang, West Kameng and East Kameng"], answer:1},
+
+{q:"The total estimated investment approved for the 1,200 MW Kalai-II Hydro Electric Project is:", options:["₹12,980.75 crore","₹14,105.83 crore","₹16,245.40 crore","₹18,325.25 crore"], answer:1},
+
+{q:"The Union Cabinet approved Nutrient Based Subsidy (NBS) rates for the Kharif Season 2026 for Phosphatic and Potassic (P&K) fertilizers with a budgetary allocation of:", options:["₹38,745.18 crore","₹41,533.81 crore","₹44,210.65 crore","₹47,125.90 crore"], answer:1},
+
+{q:"The Jaipur Metro Project Phase-II approved by the Union Cabinet envisages construction of a corridor of approximately:", options:["32 km connecting Sitapura to Chandpole","41 km connecting Prahladpura to Todi Mod","45 km connecting Mansarovar to Ajmer Road","38 km connecting Vaishali Nagar to Badi Chaupar"], answer:1},
+
+{q:"Which among the following is the approved cost of Jaipur Metro Phase-II?", options:["₹10,876.42 crore","₹12,650.91 crore","₹13,037.66 crore","₹14,895.28 crore"], answer:2},
+
+{q:"The Supreme Court (Number of Judges) Amendment Bill, 2026 seeks to increase the number of Supreme Court judges (excluding the Chief Justice of India) from:", options:["31 to 35","32 to 36","33 to 37","34 to 38"], answer:2},
+
+{q:"Under which Article of the Constitution is the Supreme Court of India constituted?", options:["Article 123","Article 124","Article 131","Article 136"], answer:1},
+
+{q:"Originally, Article 124(1) of the Constitution provided for the Chief Justice of India and how many other judges?", options:["Five","Seven","Nine","Ten"], answer:1},
+
+{q:"The Supreme Court of India was established on:", options:["26 January 1950","28 January 1950","15 August 1947","26 November 1949"], answer:1},
+
+{q:"Which of the following correctly reflects the judge strength of the Supreme Court after the 2019 amendment?", options:["30 judges excluding CJI","31 judges excluding CJI","32 judges excluding CJI","33 judges excluding CJI"], answer:3},
+
+{q:"The Cabinet-approved Mission for Cotton Productivity has an outlay of:", options:["₹4,985.10 crore","₹5,659.22 crore","₹6,245.50 crore","₹7,015.65 crore"], answer:1},
+
+{q:"The Mission for Cotton Productivity will be implemented during which period?", options:["2025–26 to 2029–30","2026–27 to 2030–31","2026–27 to 2031–32","2027–28 to 2032–33"], answer:1},
+
+{q:"The Mission for Cotton Productivity supports the Government’s \"5F Vision\".. Which of the following correctly represents the sequence?", options:["Farm to Fibre to Fabric to Fashion to Foreign","Farm to Fibre to Factory to Fashion to Foreign","Farm to Factory to Fibre to Fashion to Foreign","Fibre to Farm to Factory to Fashion to Foreign"], answer:1},
+
+{q:"Under the Mission for Cotton Productivity, approximately how many districts across India are proposed to be covered?", options:["120 districts in 12 States","130 districts in 13 States","140 districts in 14 States","150 districts in 15 States"], answer:2},
+
+{q:"The target cotton productivity under the Mission for Cotton Productivity is proposed to increase from 440 kg/hectare to:", options:["650 kg/hectare","700 kg/hectare","725 kg/hectare","755 kg/hectare"], answer:3},
+
+{q:"The Cabinet-approved Mission for Cotton Productivity aims to benefit nearly:", options:["25 lakh farmers","28 lakh farmers","30 lakh farmers","32 lakh farmers"], answer:3},
+
+{q:"Which among the following is popularly known as \"White Gold\"?", options:["Jute","Cotton","Silk","Flax"], answer:1},
+
+{q:"Which State is the largest producer of cotton in India?", options:["Maharashtra","Telangana","Gujarat","Punjab"], answer:2},
+
+{q:"Kasturi Cotton Bharat, intended for branding and traceability of Indian cotton, was launched by:", options:["Ministry of Agriculture and Farmers Welfare","Ministry of Commerce and Industry","Ministry of Textiles","ICAR"], answer:2},
+
+{q:"The Cabinet Committee on Economic Affairs approved a modern Ship Repair Facility at Vadinar in Gujarat with an investment of:", options:["₹1,320 crore","₹1,570 crore","₹1,850 crore","₹2,140 crore"], answer:1},
+
+{q:"Which two organizations will jointly implement the Ship Repair Facility at Vadinar?", options:["Paradip Port Authority and CSL","Jawaharlal Nehru Port Authority and CSL","Deendayal Port Authority and Cochin Shipyard Limited","Mumbai Port Authority and Garden Reach Shipbuilders & Engineers"], answer:2},
+
+{q:"The proposed Ship Repair Facility at Vadinar will be capable of repairing vessels up to:", options:["200 metres","250 metres","275 metres","300 metres"], answer:3},
+
+{q:"Cochin Shipyard Limited (CSL), one of the implementing agencies of the Vadinar project, was established in:", options:["1969","1972","1975","1980"], answer:1},
+
+{q:"Under the India Semiconductor Mission (ISM), two semiconductor projects worth about ₹3,936 crore were approved. The Mini/Micro-LED display facility by Crystal Matrix Limited (CML) will be located at:", options:["Surat","Rajkot","Dholera","Bharuch"], answer:2},
+
+{q:"The semiconductor packaging unit approved for Suchi Semicon Private Limited (SSPL) will come up in:", options:["Ahmedabad","Surat","Gandhinagar","Vadodara"], answer:1},
+
+{q:"The Mini/Micro-LED facility of Crystal Matrix Limited is expected to produce how many square metres of panels?", options:["54,000 sq m","60,000 sq m","72,000 sq m","84,000 sq m"], answer:2},
+
+{q:"Suchi Semicon Private Limited (SSPL) is expected to manufacture approximately:", options:["825.50 million chips annually","950.75 million chips annually","1,033.20 million chips annually","1,250.80 million chips annually"], answer:2},
+
+{q:"The India Semiconductor Mission (ISM) was launched in:", options:["2019","2020","2021","2022"], answer:2},
+
+{q:"The nodal ministry for the India Semiconductor Mission (ISM) is:", options:["Ministry of Commerce and Industry","Ministry of Heavy Industries","Ministry of Electronics and Information Technology (MeitY)","Ministry of Science and Technology"], answer:2},
+
+{q:"The Union Cabinet approved Emergency Credit Line Guarantee Scheme (ECLGS) 5.0 with an outlay of:", options:["₹15,500 crore","₹16,750 crore","₹18,100 crore","₹20,250 crore"], answer:2},
+
+{q:"Under ECLGS 5.0, the credit guarantee coverage for Micro, Small and Medium Enterprises (MSMEs) has been fixed at:", options:["80%","85%","90%","100%"], answer:3},
+
+{q:"The Emergency Credit Line Guarantee Scheme (ECLGS) 5.0 will remain valid up to:", options:["31 December 2026","31 March 2027","30 June 2027","31 December 2027"], answer:1},
+
+{q:"National Credit Guarantee Trustee Company Limited (NCGTC), which administers ECLGS 5.0, was established in which year?", options:["2012","2013","2014","2015"], answer:2},
+
+{q:"The Cabinet Committee on Economic Affairs (CCEA), chaired by the Prime Minister, approved several major proposals on May 5, 2026, including railway projects, judicial expansion and maritime infrastructure. Which among the following projects was approved with an investment of ₹1,570 crore?", options:["Ahmedabad–Dholera Rail Project","Nagpur Airport Modernisation Project","Ship Repair Facility at Vadinar, Gujarat","National Coal Gasification Mission Project"], answer:2},
+
+{q:"The modern ship repair facility approved by the Cabinet Committee on Economic Affairs (CCEA) at Vadinar in Gujarat will be jointly developed by which two entities?", options:["Paradip Port Authority and Garden Reach Shipbuilders & Engineers","Deendayal Port Authority (DPA) and Cochin Shipyard Limited (CSL)","Jawaharlal Nehru Port Authority and Mazagon Dock Shipbuilders Limited","Mumbai Port Authority and Cochin Port Authority"], answer:1},
+
+{q:"Which among the following railway multi-tracking projects approved by the Cabinet Committee on Economic Affairs (CCEA) connects Madhya Pradesh, Rajasthan and Uttar Pradesh?", options:["Guntakal–Wadi 3rd and 4th Line","Burhwal–Sitapur 3rd and 4th Line","Nagda–Mathura 3rd and 4th Line","Ahmedabad–Dholera Double Line"], answer:2},
+
+{q:"The Guntakal–Wadi 3rd and 4th railway line project approved by the Cabinet Committee on Economic Affairs (CCEA) passes through which two States?", options:["Telangana and Karnataka","Andhra Pradesh and Karnataka","Tamil Nadu and Andhra Pradesh","Maharashtra and Karnataka"], answer:1},
+
+{q:"Which railway multi-tracking project approved by the Cabinet Committee on Economic Affairs (CCEA) is located entirely in Uttar Pradesh?", options:["Nagda–Mathura 3rd and 4th Line","Guntakal–Wadi 3rd and 4th Line","Burhwal–Sitapur 3rd and 4th Line","Ahmedabad–Dholera Double Line"], answer:2},
+
+{q:"The total outlay approved for the three railway multi-tracking projects by the Cabinet Committee on Economic Affairs (CCEA) was:", options:["₹20,667 crore","₹21,850 crore","₹23,437 crore","₹25,530 crore"], answer:2},
+
+{q:"The Union Government approved an increase in the sanctioned strength of Supreme Court judges from 33 to 37 excluding the Chief Justice of India (CJI). This implies an increase of:", options:["2 judges","3 judges","4 judges","5 judges"], answer:2},
+
+{q:"The Supreme Court of India, whose sanctioned judge strength was enhanced in 2026, was established in:", options:["1949","1950","1951","1952"], answer:1},
+
+{q:"The headquarters of the Supreme Court of India is located in:", options:["Mumbai","Hyderabad","New Delhi","Prayagraj"], answer:2},
+
+{q:"Who is the Chief Justice of India (CJI) in 2026?", options:["D.Y. Chandrachud","B.R. Gavai","Surya Kant","Sanjiv Khanna"], answer:2},
+
+{q:"Cochin Shipyard Limited (CSL), one of the implementing agencies for the Vadinar Ship Repair Facility, was established in:", options:["1969","1972","1975","1980"], answer:1},
+
+{q:"The headquarters of Cochin Shipyard Limited (CSL) is situated at:", options:["Visakhapatnam","Mangaluru","Kochi","Chennai"], answer:2},
+
+{q:"The Cabinet Committee on Economic Affairs (CCEA) approved the Fair and Remunerative Price (FRP) payable to sugarcane farmers for the 2026-27 season at:", options:["₹355 per quintal","₹360 per quintal","₹365 per quintal","₹370 per quintal"], answer:2},
+
+{q:"The approved Fair and Remunerative Price (FRP) of sugarcane for 2026-27 is applicable at a basic recovery rate of:", options:["10.00%","10.15%","10.25%","10.50%"], answer:2},
+
+{q:"The revised Fair and Remunerative Price (FRP) of sugarcane for 2026-27 represents an increase of approximately:", options:["1.95%","2.81%","3.15%","4.20%"], answer:1},
+
+{q:"The revised Fair and Remunerative Price (FRP) for sugarcane will come into effect from:", options:["July 1, 2026","August 1, 2026","September 1, 2026","October 1, 2026"], answer:3},
+
+{q:"One quintal, frequently used in agricultural pricing, is equivalent to:", options:["50 kilograms","75 kilograms","100 kilograms","125 kilograms"], answer:2},
+
+{q:"The Mission for Cotton Productivity approved by the Union Cabinet covers the period:", options:["2025–30","2026–31","2027–32","2028–33"], answer:1},
+
+{q:"Which among the following correctly represents the Government's 5F vision promoted under the Mission for Cotton Productivity?", options:["Farm–Factory–Fashion–Foreign–Fibre","Farm–Fibre–Factory–Fashion–Foreign","Fibre–Farm–Factory–Fashion–Foreign","Farm–Fibre–Fabric–Fashion–Foreign"], answer:1},
+
+{q:"The Union Cabinet approved a scheme for Promotion of Surface Coal/Lignite Gasification Projects with a total outlay of:", options:["₹30,000 crore","₹35,000 crore","₹37,500 crore","₹40,000 crore"], answer:2},
+
+{q:"The Promotion of Surface Coal/Lignite Gasification Projects aims to reduce dependence on imports of LNG, methanol and:", options:["Ammonia","LPG","Urea","Hydrogen"], answer:2},
+
+{q:"The Promotion of Surface Coal/Lignite Gasification Projects operates under which mission launched in 2021?", options:["National Hydrogen Mission","National Coal Gasification Mission","National Biofuel Mission","National Clean Energy Mission"], answer:1},
+
+{q:"The coal linkage tenure under the newly approved scheme has been extended to:", options:["20 years","25 years","30 years","35 years"], answer:2},
+
+{q:"Under the scheme for Promotion of Surface Coal/Lignite Gasification Projects, incentives may be provided up to what percentage of the cost of plant and machinery?", options:["10%","15%","20%","25%"], answer:2},
+
+{q:"The maximum incentive available to a single entity under the coal/lignite gasification scheme is:", options:["₹5,000 crore","₹9,000 crore","₹10,000 crore","₹12,000 crore"], answer:3},
+
+{q:"The Cabinet Committee on Economic Affairs (CCEA) approved higher Minimum Support Prices (MSP) for how many Kharif crops for the marketing season 2026-27?", options:["12 crops","13 crops","14 crops","15 crops"], answer:2},
+
+{q:"The Minimum Support Price (MSP) fixed for paddy for the marketing season 2026-27 is:", options:["₹2,401 per quintal","₹2,421 per quintal","₹2,441 per quintal","₹2,461 per quintal"], answer:2},
+
+{q:"Grade A paddy has been fixed at what Minimum Support Price (MSP) for the marketing season 2026-27?", options:["₹2,441 per quintal","₹2,451 per quintal","₹2,461 per quintal","₹2,481 per quintal"], answer:2},
+
+{q:"Which Kharif crop received an increase of ₹622 per quintal in its Minimum Support Price (MSP) for the 2026-27 season?", options:["Cotton","Paddy","Sunflower Seed","Sesamum"], answer:2},
+
+{q:"The Ahmedabad (Sarkhej)-Dholera Semi High-Speed Double-Line Railway Project approved by the Cabinet Committee on Economic Affairs (CCEA) has a total length of:", options:["120 km","128 km","134 km","142 km"], answer:2},
+
+{q:"The Ahmedabad (Sarkhej)-Dholera railway project has been approved with an estimated cost of:", options:["₹18,750 crore","₹20,667 crore","₹22,540 crore","₹23,437 crore"], answer:1},
+
+{q:"The Ahmedabad–Dholera Semi High-Speed Double-Line Railway Project is significant because it is India's first railway project using indigenous technology supporting speeds up to:", options:["160 kmph","180 kmph","200 kmph","220 kmph"], answer:3},
+
+{q:"The Union Cabinet approved extension of Airports Authority of India (AAI) land lease to MIHAN India Limited (MIL) beyond:", options:["August 2035","August 2037","August 2039","August 2041"], answer:2},
+
+{q:"The extension of Airports Authority of India (AAI) land lease to MIHAN India Limited (MIL) enables which company to modernise Dr. Babasaheb Ambedkar International Airport?", options:["GVK Nagpur International Airport Limited","GMR Nagpur International Airport Limited (GNIAL)","Adani Airport Holdings Limited","Air India Airport Services Limited"], answer:1},
+
+{q:"The SARTHAK-PDS umbrella scheme approved by the Cabinet Committee on Economic Affairs (CCEA) with a Central Share of ₹25,530 crore will continue up to:", options:["March 31, 2028","March 31, 2029","March 31, 2030","March 31, 2031"], answer:3},
+
+{q:"The Union Cabinet approved an Aviation Turbine Fuel (ATF) Price Stabilisation Fund with a corpus of ₹10,000 crore on 3 June 2026 to protect airlines from extreme fuel price volatility. The approved support is intended primarily for:", options:["Private charter operators only","Scheduled Indian airlines operating domestically and internationally","Foreign airlines operating in India","Cargo carriers and helicopter operators only"], answer:1},
+
+{q:"The corpus approved by the Union Cabinet for the Aviation Turbine Fuel (ATF) Price Stabilisation Fund amounts to:", options:["₹8,500 crore","₹9,000 crore","₹10,000 crore","₹12,000 crore"], answer:2},
+
+{q:"Under the ATF Price Stabilisation Support Scheme, ATF accounts for approximately what percentage of airline operating costs?", options:["25%","30%","35%","40%"], answer:3},
+
+{q:"Aviation Turbine Fuel (ATF) prices rose sharply from ₹60.50 per litre in March 2026 to nearly what level in May 2026?", options:["₹125 per litre","₹132 per litre","₹142 per litre","₹150 per litre"], answer:2},
+
+{q:"The domestic ATF price cap fixed under the approved ATF Price Stabilisation Fund is:", options:["₹72.5 per litre","₹75.6 per litre","₹78.4 per litre","₹80.0 per litre"], answer:1},
+
+{q:"The ATF Price Stabilisation Scheme will remain valid for:", options:["24 months","30 months","36 months","48 months"], answer:2},
+
+{q:"Interest-free advances under the ATF Price Stabilisation Support Scheme will be provided to:", options:["Airports Authority of India (AAI)","Scheduled Airlines","Oil Marketing Companies (OMCs)","Directorate General of Civil Aviation (DGCA)"], answer:2},
+
+{q:"Which ministry is responsible for implementing the ATF Price Stabilisation Support Scheme?", options:["Ministry of Civil Aviation","Ministry of Petroleum and Natural Gas","Ministry of Finance","Ministry of Commerce and Industry"], answer:1},
+
+{q:"The Delhi-NCR Clean Mobility and Air Pollution Reduction Scheme approved by the Union Cabinet has a financial outlay of:", options:["₹8,765 crore","₹9,585 crore","₹10,250 crore","₹11,100 crore"], answer:1},
+
+{q:"The Delhi-NCR Clean Mobility and Air Pollution Reduction Scheme has been approved for a duration of:", options:["One year","Two years","Three years","Five years"], answer:1},
+
+{q:"The Delhi-NCR Clean Mobility and Air Pollution Reduction Scheme is being implemented under the National Capital Region Planning Board (NCRPB), which functions under:", options:["Ministry of Road Transport and Highways","Ministry of Environment, Forest and Climate Change","Ministry of Housing and Urban Affairs","Ministry of Heavy Industries"], answer:2},
+
+{q:"Which two ministries are directly entrusted with implementing the Delhi-NCR Clean Mobility and Air Pollution Reduction Scheme?", options:["MoRTH and MoPNG","MoHUA and MoEFCC","MoRTH and Ministry of Finance","MoPNG and Ministry of Heavy Industries"], answer:0},
+
+{q:"The Clean Mobility and Air Pollution Reduction Scheme covers Delhi along with which three States?", options:["Punjab, Haryana and Rajasthan","Haryana, Rajasthan and Uttar Pradesh","Haryana, Madhya Pradesh and Uttar Pradesh","Rajasthan, Punjab and Uttarakhand"], answer:1},
+
+{q:"Approximately how many vehicle owners are expected to benefit under the Delhi-NCR Clean Mobility and Air Pollution Reduction Scheme?", options:["1.25 lakh","1.75 lakh","2.07 lakh","2.50 lakh"], answer:2},
+
+{q:"Under the Delhi-NCR Clean Mobility and Air Pollution Reduction Scheme, the Central Government will provide interest subvention of 5% for a period of:", options:["2 years","3 years","4 years","5 years"], answer:3},
+
+{q:"Monthly fuel vouchers under the Clean Mobility Scheme are available up to:", options:["₹3,000","₹4,000","₹4,800","₹5,500"], answer:2},
+
+{q:"Auto OEMs participating in the Delhi-NCR Clean Mobility and Air Pollution Reduction Scheme are expected to provide discounts of:", options:["5% on ex-showroom prices","6% on ex-showroom prices","8% on ex-showroom prices","10% on ex-showroom prices"], answer:2},
+
+{q:"The Empowered Committee constituted for monitoring the Delhi-NCR Clean Mobility Scheme will be chaired by the:", options:["Finance Secretary","Cabinet Secretary","Home Secretary","NITI Aayog CEO"], answer:1},
+
+{q:"The National Capital Region Planning Board (NCRPB) was established in:", options:["1983","1985","1988","1990"], answer:1},
+
+{q:"The Cabinet Committee on Economic Affairs (CCEA) approved widening of the Armoor–Jagtial–Mancherial section of NH-63 and Jagtial–Karimnagar section of NH-563 to four lanes in which State?", options:["Andhra Pradesh","Telangana","Karnataka","Maharashtra"], answer:1},
+
+{q:"The total length covered under the NH-63 and NH-563 widening project approved by the CCEA is:", options:["175.25 km","182.40 km","190.76 km","195.80 km"], answer:2},
+
+{q:"The estimated cost of the NH-63 and NH-563 widening project in Telangana is:", options:["₹6,845.50 crore","₹7,125.90 crore","₹7,597.16 crore","₹8,300.79 crore"], answer:2},
+
+{q:"The NH-63 and NH-563 widening project in Telangana will be executed under which combination of modes?", options:["EPC and BOT (Annuity)","Hybrid Annuity Model (HAM) and BOT (Toll)","BOT (Annuity) and EPC","HAM and EPC"], answer:1},
+
+{q:"The design speed proposed for the NH-63 and NH-563 project in Telangana is:", options:["80 km/h","90 km/h","100 km/h","120 km/h"], answer:2},
+
+{q:"The NH-31 and NH-231 upgradation project approved by the Cabinet Committee on Economic Affairs (CCEA) pertains to which State?", options:["Jharkhand","Bihar","Uttar Pradesh","West Bengal"], answer:1},
+
+{q:"The total project length of the NH-31 and NH-231 upgradation project is:", options:["132.500 km","138.850 km","143.529 km","150.125 km"], answer:2},
+
+{q:"The estimated project cost approved for upgrading NH-31 and NH-231 in Bihar is:", options:["₹3,250.15 crore","₹3,750.90 crore","₹3,936.05 crore","₹4,250.60 crore"], answer:2},
+
+{q:"A Greenfield Bypass of what length has been proposed for Purnea City under the NH-31 and NH-231 upgradation project?", options:["5.250 km","6.729 km","7.500 km","8.125 km"], answer:1},
+
+{q:"The new coastal highway project approved by the Cabinet Committee on Economic Affairs (CCEA) from Rameshwar to Paradeep is located in:", options:["Andhra Pradesh","West Bengal","Odisha","Tamil Nadu"], answer:2},
+
+{q:"The total length of the Rameshwar–Paradeep coastal highway project approved under the Hybrid Annuity Model (HAM) is:", options:["145.80 km","150.45 km","160.18 km","170.25 km"], answer:2},
+
+{q:"The estimated cost of the Coastal Highway Project in Odisha is:", options:["₹7,950.25 crore","₹8,300.79 crore","₹8,765.00 crore","₹9,120.15 crore"], answer:1},
+
+{q:"The Cabinet Committee on Economic Affairs (CCEA) approved projects worth about ₹2,533 crore for Central Government General Pool Office Accommodation (CGGPOA) and General Pool Residential Accommodation (GPRA) campuses in:", options:["Visakhapatnam, Andhra Pradesh","Amaravati, Andhra Pradesh","Hyderabad, Telangana","Vijayawada, Andhra Pradesh"], answer:1},
+
+{q:"The CGGPOA project approved in Amaravati has been allocated approximately:", options:["₹1,150.50 crore","₹1,299.08 crore","₹1,350.25 crore","₹1,450.00 crore"], answer:1},
+
+{q:"The General Pool Residential Accommodation (GPRA) project in Amaravati covers approximately:", options:["12 acres","15 acres","17 acres","20 acres"], answer:2},
+
+{q:"The Central Public Works Department (CPWD), which will implement the Amaravati office and residential campuses, was established in:", options:["1847","1854","1861","1872"], answer:1}
+
+];
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 1800;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
